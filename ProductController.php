@@ -2,15 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
- // Tampilkan semua produk
     public function index()
     {
-        $products = Product::all(); // ambil semua data dari tabel products
+        // ✅ Ambil produk dengan pagination (3 per halaman)
+        $products = Product::paginate(3);
+
+        // Kirim ke view
         return view('products.index', compact('products'));
-    }   //
+
+        
+       
+    }
 }
+
+    
+
