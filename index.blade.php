@@ -1,62 +1,40 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Keranjang Belanja</title>
-    <style>
-        table { width: 70%; border-collapse: collapse; margin: 20px auto; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
-        th { background-color: #f2f2f2; }
-        form { display: inline; }
-        .btn { padding: 5px 10px; margin: 2px; }
-    </style>
-</head>
-<body>
-    <h2 align="center">🛒 Keranjang Belanja</h2>
+@extends('layouts.app')
 
-    @if(session('success'))
-        <p style="color: green; text-align: center;">{{ session('success') }}</p>
-    @endif
+@section('content')
+<div class="container">
+    <h1 class="mb-4 text-center">Daftar Produk</h1>
+    <div class="row">
+        @foreach($products as $product)
+            <div class="col-md-3 col-sm-6">
+                <div class="card mb-4 shadow-sm h-100">
 
-    <table>
-        <thead>
-            <tr>
-                <th>Nama Produk</th>
-                <th>Harga</th>
-                <th>Jumlah</th>
-                <th>Total</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            @php $total = 0; @endphp
-            @foreach($cart as $id => $item)
-                <tr>
-                    <td>{{ $item['name'] }}</td>
-                    <td>Rp{{ number_format($item['price'], 0, ',', '.') }}</td>
-                    <td>
-                        <form method="POST" action="{{ route('cart.update') }}">
+                    {{-- ✅ Gambar produk tampil dan rapi --}}
+                    <div class="d-flex justify-content-center align-items-center" style="height: 200px; overflow: hidden;">
+                        <img src="{{ asset($product->image_url) }}" 
+                             alt="{{ $product->name }}" 
+                             style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                    </div>
+
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title text-center">{{ $product->name }}</h5>
+                        <p class="card-text text-muted small">{{ $product->description }}</p>
+                        <p class="text-center"><strong>Rp {{ number_format($product->price, 0, ',', '.') }}</strong></p>
+
+                        {{-- Tombol tambah ke keranjang --}}
+                        <form action="{{ route('cart.add') }}" method="POST" class="mt-auto">
                             @csrf
-                            <input type="hidden" name="id" value="{{ $id }}">
-                            <input type="number" name="quantity" value="{{ $item['quantity'] }}" min="1" style="width: 50px;">
-                            <button class="btn" type="submit">Simpan</button>
+                            <input type="hidden" name="product_id" value="{{ $product->id }}">
+                            <button type="submit" class="btn btn-primary w-100">Tambah ke Keranjang</button>
                         </form>
-                    </td>
-                    <td>Rp{{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}</td>
-                    <td>
-                        <form method="POST" action="{{ route('cart.delete') }}">
-                            @csrf
-                            <input type="hidden" name="id" value="{{ $id }}">
-                            <button class="btn" type="submit" onclick="return confirm('Hapus produk ini?')">🗑️ Hapus</button>
-                        </form>
-                    </td>
-                </tr>
-                @php $total += $item['price'] * $item['quantity']; @endphp
-            @endforeach
-            <tr>
-                <td colspan="3"><strong>Total</strong></td>
-                <td colspan="2"><strong>Rp{{ number_format($total, 0, ',', '.') }}</strong></td>
-            </tr>
-        </tbody>
-    </table>
-</body>
-</html>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    </div>
+
+    {{-- ✅ Pagination di tengah --}}
+    <div class="d-flex justify-content-center mt-4">
+        {{ $products->links() }}
+    </div>
+</div>
+@endsection
